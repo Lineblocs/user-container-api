@@ -3,6 +3,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 	"net/http"
 	"context"
 	"github.com/gorilla/mux"
@@ -191,7 +192,9 @@ func updateDeployment(clientset *kubernetes.Clientset, name string) (error) {
 			return getErr
 		}
 
-		result.Spec.Template.Spec.Containers[0].Image = "nginx:1.13" // change nginx version
+		//result.Spec.Template.Spec.Containers[0].Image = "nginx:1.13" // change nginx version
+		currentTime := time.Now()
+		result.Spec.Template.ObjectMeta.Labels["date"] = currentTime.Format("2006.01.02 15:04:05")
 		_, updateErr := deploymentsClient.Update(context.TODO(), result, metav1.UpdateOptions{})
 		return updateErr
 	})
