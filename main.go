@@ -16,6 +16,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/client-go/kubernetes"
 	rest "k8s.io/client-go/rest"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 		"k8s.io/client-go/util/retry"
@@ -44,6 +45,7 @@ func launchK8sResources(clientset *kubernetes.Clientset, userId string, name str
 	svcName := name
 	domain := name+".lineblocs.com"
 	servicesClient := clientset.CoreV1().Services(namespace)
+	svcPort := intstr.FromInt(10000)
 	service := &v1.Service{
             ObjectMeta: metav1.ObjectMeta{
                 Name:                       svcName,
@@ -53,8 +55,15 @@ func launchK8sResources(clientset *kubernetes.Clientset, userId string, name str
                 },
             },
             Spec: v1.ServiceSpec{
-                Ports:                    nil,
-                Selector:                 nil,
+				Ports: []v1.ServicePort{
+					{
+						Port: 10000,
+						TargetPort: svcPort,
+					},
+				},
+                Selector:                 map[string]string{
+					"app": name,
+				},
                 ClusterIP:                "",
 
             },
