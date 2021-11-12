@@ -171,7 +171,7 @@ func CreateContainer(w http.ResponseWriter, r *http.Request) {
 	}
 
 
-	err = launchK8sResources(clientset, userId, workspaceId, workspace)
+	err = launchK8sResources(clientset, userId, workspace, workspaceId)
 	if err != nil {
 		fmt.Printf("error occured")
 		fmt.Println(err)
