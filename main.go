@@ -119,7 +119,7 @@ func launchK8sResources(clientset *kubernetes.Clientset, userId string, name str
 							},
 						},
 					},
-                    RestartPolicy: v1.RestartPolicyNever,
+                    RestartPolicy: "Always",
 					ImagePullSecrets: []v1.LocalObjectReference{
 						{
 							Name: "lineblocs-regcred",
