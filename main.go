@@ -3,8 +3,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"errors"
-	"path/filepath"
 	"net/http"
 	"context"
 	"github.com/gorilla/mux"
@@ -17,30 +15,26 @@ import (
 	"k8s.io/client-go/kubernetes"
 	rest "k8s.io/client-go/rest"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
+	_ "k8s.io/client-go/tools/clientcmd"
+	_ "k8s.io/client-go/util/homedir"
 		"k8s.io/client-go/util/retry"
 )
 
 func createK8SConfig() (*rest.Config, error) {
-	var kubeconfig string
-	home := homedir.HomeDir()
-	if home == "" {
-		return nil, errors.New("cannot get HOME dir")
-	}
-	kubeconfig = filepath.Join(home, ".kube", "config")
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	// creates the in-cluster config
+	config, err := rest.InClusterConfig()
 	if err != nil {
-		//panic(err.Error())
 		return nil, err
 	}
 	return config, nil
 }
 
 func launchK8sResources(clientset *kubernetes.Clientset, userId string, name string, workspaceId string) (error) {
+	fmt.Println("launching K8s resources for " + name)
+	fmt.Println("USER ID = " + userId)
 	token :=""
 	secret :=""
-	image := ""
+	image := "754569496111.dkr.ecr.ca-central-1.amazonaws.com/lineblocs-k8s-user:latest"
 	namespace := "voip-users"
 	svcName := name
 	domain := name+".lineblocs.com"
@@ -156,6 +150,7 @@ func launchK8sResources(clientset *kubernetes.Clientset, userId string, name str
 }
 
 func CreateContainer(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("create container called..")
 	workspace := r.FormValue("workspace")
 	workspaceId := r.FormValue("workspace_id")
 	userId:= r.FormValue("user_id")
@@ -206,6 +201,7 @@ func updateDeployment(clientset *kubernetes.Clientset, name string) (error) {
 	return nil
 }
 func UpdateContainer(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("update container called..")
 	workspace := r.FormValue("workspace")
 	cfg, err:= createK8SConfig()
 	if err != nil {
